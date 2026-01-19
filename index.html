@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資格応援隊 用語集アプリ</title>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .flip-container {
+          perspective: 1000px;
+        }
+        .flip-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          transition: transform 0.6s;
+          transform-style: preserve-3d;
+        }
+        .flip-card-front, .flip-card-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+        }
+        .flip-card-back {
+          transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // SVG Icon Definitions (Lucide style)
+        // Reactコンポーネントとして直接定義することで、CDNライブラリの仕様変更や読み込みエラーを回避します。
+        const ICONS = {
+            Menu: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/>
+                </svg>
+            ),
+            X: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                </svg>
+            ),
+            ChevronLeft: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+            ),
+            ChevronRight: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+            ),
+            Shuffle: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l10.6-12.6c.7-1 2-1.7 3.3-1.7H22"/><path d="M2 6h1.4c1.3 0 2.5.6 3.3 1.7l10.6 12.6c.7 1 2 1.7 3.3 1.7H22"/>
+                </svg>
+            ),
+            List: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+            ),
+            Book: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+            ),
+            Brain: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+                </svg>
+            ),
+            Search: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+            ),
+            Home: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            )
+        };
+        
+        // Icon Wrapper Component
+        const Icon = ({ name, ...props }) => {
+            const Component = ICONS[name];
+            if (!Component) {
+                console.warn(`Icon "${name}" not found.`);
+                return null;
+            }
+            return <Component {...props} />;
+        };
+
+        const CATEGORIES = [
+          { id: 1, title: "1. AIの歴史・概念・基礎", color: "bg-blue-500" },
+          { id: 2, title: "2. 機械学習・統計・数学・HW", color: "bg-indigo-500" },
+          { id: 3, title: "3. DL基礎・最適化", color: "bg-purple-500" },
+          { id: 4, title: "4. 画像認識 (CV)", color: "bg-pink-500" },
+          { id: 5, title: "5. 自然言語・音声 (NLP)", color: "bg-orange-500" },
+          { id: 6, title: "6. 強化学習・生成AI", color: "bg-red-500" },
+          { id: 7, title: "7. 法律・ビジネス・MLOps", color: "bg-teal-500" },
+        ];
+
+        const RAW_DATA = [
+          { catId: 1, term: "AI効果", def: "知的行動と見なされても、AIができると分かった途端に評価が下がる現象", ref: "1111111111111" },
+          { catId: 1, term: "ダートマス会議", def: "1956年開催。「人工知能（Artificial Intelligence）」という言葉が誕生した会議", ref: "2222222222222" },
+          { catId: 1, term: "チューリングテスト", def: "機械の応答が人間と区別できない場合、知能があるとみなすテスト", ref: "3333333333333" },
+          { catId: 1, term: "トイプロブレム", def: "現実とは異なり、限られた前提や環境で解ける単純化された問題（おもちゃの問題）", ref: "4444444444444" },
+          { catId: 1, term: "フレーム問題", def: "AIが環境内の全ての影響や前提条件を考慮しきれず、柔軟な判断が困難になる問題", ref: "5555555555555" },
+          { catId: 1, term: "シンボルグラウンディング問題", def: "記号と実世界の意味をどのように結びつけるかという、記号理解の課題", ref: "6666666666666" },
+          { catId: 1, term: "中国語の部屋", def: "マニュアルに従って応答できても、機械が意味を理解しているとは限らないとする思考実験", ref: "7777777777777" },
+          { catId: 1, term: "強いAI / 弱いAI", def: "意識や自我を持つ「強いAI」と、単に知的振る舞いをする「弱いAI」の区別", ref: "8888888888888" },
+          { catId: 1, term: "身体性", def: "人間と同様の知能を実現するには、身体を通じた世界との相互作用が不可欠だとする立場", ref: "99999" },
+          { catId: 1, term: "知識獲得のボトルネック", def: "コンピュータが知識を獲得・蓄積するには、人手による大量の入力が必要であるという課題", ref: "1010101010" },
+          { catId: 1, term: "ELIZA (イライザ)", def: "1960年代開発。来談者中心療法のカウンセラーのように対話する初期のチャットボット", ref: "111111111111" },
+          { catId: 1, term: "SHRDLU (シュルドゥル)", def: "積み木の世界で、自然言語の指示に従って物体を操作する初期のシステム", ref: "1212121212" },
+          { catId: 1, term: "STRIPS", def: "「前提条件・行動・結果」を記述し、計画（プランニング）を行う手法", ref: "1313131313" },
+          { catId: 1, term: "MYCIN / DENDRAL", def: "血液疾患診断（MYCIN）や有機化合物特定（DENDRAL）を行う初期のエキスパートシステム", ref: "141414141414" },
+          { catId: 1, term: "Cyc (サイク)", def: "人間の「常識」をデータベース化しようとした大規模プロジェクト", ref: "151515151515" },
+          { catId: 1, term: "東ロボくん", def: "東大入試合格を目標に、AIに知識と読解力を学習させたプロジェクト", ref: "1616161616161616161616" },
+          { catId: 1, term: "Watson (ワトソン)", def: "IBMが開発し、クイズ番組で人間に勝利した質疑応答型AI", ref: "1717171717171717171717" },
+          { catId: 1, term: "ローブナーコンテスト", def: "AIが人間にどれだけ近づいたかを競うコンテスト", ref: "1818181818" },
+          { catId: 1, term: "オントロジー", def: "概念や用語の体系を定義し、知識の共有と機械的処理を可能にする枠組み", ref: "19191919191919191919191919191919" },
+          { catId: 1, term: "セマンティックWeb", def: "Web上の情報に意味づけをし、コンピュータが処理・推論できるようにする構想", ref: "20202020202020202020202020202020" },
+
+          { catId: 2, term: "CPU / GPU / TPU", def: "汎用計算装置(CPU)、並列処理に強い画像処理装置(GPU)、Google開発のAI専用チップ(TPU)", ref: "21212121212121" },
+          { catId: 2, term: "教師あり / なし / 半教師あり", def: "正解ラベル付き(あり)、ラベルなし(なし)、少量ラベルと大量ラベルなし(半教師)", ref: "222222222222222222222222" },
+          { catId: 2, term: "回帰分析 / ロジスティック回帰", def: "連続値予測(回帰)と、シグモイド関数を用いて確率(0-1)を出す分類手法(ロジスティック)", ref: "2323232323232323232323" },
+          { catId: 2, term: "決定木 / ランダムフォレスト", def: "条件分岐モデル(決定木)と、それを複数用いて平均化するアンサンブル学習(RF)", ref: "242424242424" },
+          { catId: 2, term: "SVM (サポートベクターマシン)", def: "マージン最大化により分類境界を決定する手法。カーネル法を利用可能", ref: "25252525" },
+          { catId: 2, term: "k-means法", def: "データをk個のグループに分け、重心を更新しながら分類する手法", ref: "2626262626262626262626262626" },
+          { catId: 2, term: "PCA (主成分分析)", def: "データの分散が大きい軸を抽出し、次元を削減する手法", ref: "2727272727272727272727272727" },
+          { catId: 2, term: "t-SNE", def: "高次元データを2次元や3次元に可視化するための非線形次元削減手法", ref: "2828282828282828282828282828" },
+          { catId: 2, term: "交差検証 / ホールドアウト", def: "データを分割して全て評価に使う(交差検証)、1度だけ分割する(ホールドアウト)", ref: "292929292929292929" },
+          { catId: 2, term: "過学習 (Overfitting)", def: "訓練データに適合しすぎて、未知データへの性能が低下する現象", ref: "303030303030303030" },
+          { catId: 2, term: "正則化 (L1 / L2)", def: "L1(ラッソ)はスパース化(特徴選択)、L2(リッジ)は重みの抑制を行い過学習を防ぐ", ref: "3131313131313131313131313131" },
+          { catId: 2, term: "混同行列", def: "真陽性、偽陽性、真陰性、偽陰性を表形式に整理したもの", ref: "323232323232323232" },
+          { catId: 2, term: "ROC曲線 / AUC", def: "真陽性率と偽陽性率の関係を描いた曲線と、その下の面積(性能指標)", ref: "33333333333333333333333333" },
+          { catId: 2, term: "次元の呪い", def: "特徴量の次元が増えるとデータが疎になり、学習が困難になる現象", ref: "34343434343434343434343434343434" },
+          { catId: 2, term: "オッカムの剃刀", def: "「より単純な仮説を優先すべき」というモデル選択の原理", ref: "3535353535" },
+          { catId: 2, term: "ノーフリーランチの定理", def: "全ての問題において万能なアルゴリズムは存在しないという定理", ref: "363636363636" },
+          { catId: 2, term: "AIC / BIC", def: "モデルの当てはまりと複雑さを評価する情報量基準(赤池AIC、ベイズBIC)", ref: "3737373737" },
+          { catId: 2, term: "KLダイバージェンス", def: "2つの確率分布間の「ずれ」を測定する指標", ref: "383838383838" },
+          { catId: 2, term: "マハラノビス距離", def: "データの分散・共分散を考慮した距離。外れ値検知に利用", ref: "39393939" },
+          { catId: 2, term: "疑似相関", def: "見かけ上は相関があるが、因果関係が存在しない関係", ref: "40404040" },
+          { catId: 2, term: "中心極限定理", def: "標本サイズが大きくなると、平均値の分布は正規分布に近づくという定理", ref: "41414141" },
+
+          { catId: 3, term: "多層パーセプトロン (MLP)", def: "入力・隠れ・出力層を持ち、誤差逆伝播法で学習するネットワーク", ref: "4242424242424242424242" },
+          { catId: 3, term: "活性化関数", def: "ReLU(0以下カット)、Sigmoid(0-1)、Tanh(-1~1)、Softmax(確率化)", ref: "434343434343434343434343434343" },
+          { catId: 3, term: "勾配消失 / 爆発問題", def: "層が深いと勾配が伝わらなくなる、または巨大になる問題", ref: "4444444444444444444444444444" },
+          { catId: 3, term: "ドロップアウト", def: "学習中にランダムにノードを無効化し、過学習を防ぐ手法", ref: "4545454545454545454545454545" },
+          { catId: 3, term: "SGD (確率的勾配降下法)", def: "データの一部を用いてパラメータを更新する基本手法", ref: "464646464646464646464646" },
+          { catId: 3, term: "Adam", def: "Momentum(慣性)とRMSProp(学習率調整)を組み合わせた最適化手法", ref: "4747474747474747474747474747" },
+          { catId: 3, term: "AdaBound / AMSBound", def: "学習初期はAdam、終盤はSGDに近づけて安定させる手法", ref: "484848484848" },
+          { catId: 3, term: "損失関数", def: "交差エントロピー(分類)、平均二乗誤差(回帰)、Contrastive Loss(距離学習)", ref: "4949494949494949494949494949" },
+          { catId: 3, term: "バッチ正規化", def: "ミニバッチごとに平均・分散を正規化し、学習を安定化させる", ref: "50505050" },
+          { catId: 3, term: "レイヤー / インスタンス正規化", def: "サンプル単位、チャネル単位での正規化。RNNや画像生成で利用", ref: "51515151" },
+          { catId: 3, term: "早期終了 (Early Stopping)", def: "検証誤差が改善しなくなった時点で学習を終了させ、過学習を防ぐ", ref: "52525252" },
+          { catId: 3, term: "二重降下現象", def: "モデルが複雑になるとテスト誤差が一度悪化し、再び向上する現象", ref: "535353535353" },
+          { catId: 3, term: "宝くじ仮説", def: "巨大なNWの中には、初期化段階で「当たり」となるサブネットワークが存在するという仮説", ref: "54545454" },
+
+          { catId: 4, term: "CNN (畳み込みNN)", def: "畳み込み層とプーリング層で特徴抽出し、画像認識を行う", ref: "55555555" },
+          { catId: 4, term: "カーネル / ストライド / パディング", def: "フィルタ(カーネル)、移動幅(ストライド)、端の補完(パディング)", ref: "56565656" },
+          { catId: 4, term: "Dilated / Depthwise Separable", def: "受容野を広げる「膨張畳み込み」、計算量を減らす「分離畳み込み」", ref: "57575757" },
+          { catId: 4, term: "AlexNet", def: "ILSVRCでCNNの有効性を示し、ブームの火付け役となったモデル", ref: "5858585858" },
+          { catId: 4, term: "ResNet", def: "スキップ結合(残差接続)により、超深層化学習を可能にしたモデル", ref: "59595959595959" },
+          { catId: 4, term: "MobileNet / EfficientNet", def: "モバイル向け軽量モデルや、精度と効率を自動設計したモデル", ref: "60606060" },
+          { catId: 4, term: "ViT (Vision Transformer)", def: "画像をパッチ分割し、Transformerで処理するモデル", ref: "6161616161" },
+          { catId: 4, term: "YOLO / SSD", def: "単一ネットワークで検出と分類を同時に行うリアルタイム物体検出モデル", ref: "62626262" },
+          { catId: 4, term: "FCN / U-Net / SegNet", def: "セグメンテーション(画素単位分類)用モデル。FCNは全結合層を排した", ref: "63636363636363" },
+          { catId: 4, term: "OpenPose", def: "人物の関節点を検出し、姿勢推定を行う技術", ref: "64646464" },
+          { catId: 4, term: "Data Augmentation (拡張)", def: "Cutout (隠す)、 Mixup (混ぜる)、 Random Erasing (消す)、 CutMix (切り貼り)", ref: "6565656565656565" },
+
+          { catId: 5, term: "Transformer", def: "Attentionのみで構成され、並列処理可能なモデル。BERT/GPTの基盤", ref: "6666666666666666" },
+          { catId: 5, term: "Attention (注意機構)", def: "入力のどの部分に注目すべきかを学習する仕組み。Query/Key/Valueを用いる", ref: "676767676767676767" },
+          { catId: 5, term: "BERT", def: "双方向Transformerで文脈を学習。マスク単語予測などの事前学習を行う", ref: "686868686868686868" },
+          { catId: 5, term: "GPT / ChatGPT", def: "Transformerデコーダによる自己回帰モデル。次単語予測で生成を行う", ref: "6969696969696969" },
+          { catId: 5, term: "Seq2Seq", def: "エンコーダ・デコーダ構造で、翻訳などの系列変換を行うモデル", ref: "70707070" },
+          { catId: 5, term: "Word2Vec (Skip-gram/CBOW)", def: "単語をベクトル化する技術。周辺語から予測(CBOW)またはその逆(Skip-gram)", ref: "7171717171" },
+          { catId: 5, term: "TF-IDF / BoW", def: "単語の頻度に基づく、古典的なテキスト表現手法", ref: "727272727272727272" },
+          { catId: 5, term: "GLUE", def: "自然言語処理タスクの統一評価ベンチマーク", ref: "73737373" },
+          { catId: 5, term: "MFCC (メル周波数ケプストラム係数)", def: "人間の聴覚特性(メル尺度)を反映した、音声認識の特徴量", ref: "74747474747474" },
+          { catId: 5, term: "CTC損失", def: "入出力長が一致しない系列(音声認識等)の学習に使われる損失関数", ref: "75757575" },
+
+          { catId: 6, term: "Q学習 / DQN", def: "行動価値関数Qを学習。DQNは深層学習でQ値を近似", ref: "76767676" },
+          { catId: 6, term: "Actor-Critic / A3C", def: "行動決定(Actor)と価値評価(Critic)を並列で行う手法", ref: "7777777777777777777777777777" },
+          { catId: 6, term: "Rainbow", def: "DQNの7つの拡張機能(Double DQN, Dueling Netなど)を統合した手法", ref: "78787878" },
+          { catId: 6, term: "PPO (Proximal Policy Optimization)", def: "方策の更新幅を制限して学習を安定させた手法。ChatGPTの学習でも利用", ref: "79797979" },
+          { catId: 6, term: "RLHF", def: "人間のフィードバックを取り入れて強化学習を行う手法", ref: "80808080" },
+          { catId: 6, term: "GAN (敵対的生成NW)", def: "生成器と識別器を競わせる。DCGAN, CycleGAN, Pix2Pixなどがある", ref: "818181818181818181" },
+          { catId: 6, term: "VAE (変分オートエンコーダ)", def: "潜在空間の確率分布からデータを生成するモデル", ref: "82828282828282828282" },
+          { catId: 6, term: "拡散モデル (Diffusion Model)", def: "ノイズ除去プロセスを学習し、高精細画像を生成する最新モデル", ref: "83838383838383838383838383" },
+          { catId: 6, term: "CLIP / DALL-E", def: "テキストと画像を繋ぐマルチモーダルAI。CLIPは検索、DALL-Eは生成", ref: "8484848484" },
+          { catId: 6, term: "NeRF (ナーフ)", def: "複数の視点画像から3次元空間を学習し、自由視点画像を生成する技術", ref: "8585858585" },
+
+          { catId: 7, term: "GDPR", def: "EUの一般データ保護規則。忘れられる権利などを規定", ref: "86868686" },
+          { catId: 7, term: "匿名加工情報", def: "特定個人を識別できないよう加工し、復元できないようにした情報", ref: "87878787" },
+          { catId: 7, term: "仮名加工情報", def: "他の情報と照合しない限り識別できないよう加工した情報(内部利用向け)", ref: "88888888" },
+          { catId: 7, term: "要配慮個人情報", def: "人種、信条、病歴など、慎重な扱いが必要な情報", ref: "89898989" },
+          { catId: 7, term: "限定提供データ", def: "特定の相手に提供されるデータで、不正取得などが禁止される", ref: "90909090" },
+          { catId: 7, term: "著作権 / 特許法", def: "AI生成物は原則著作権なし。AI自体は発明者になれない", ref: "91919191" },
+          { catId: 7, term: "MLOps", def: "機械学習モデルの開発・実装・運用を自動化し、継続的に管理する手法", ref: "9292929292929292929292" },
+          { catId: 7, term: "CRISP-DM", def: "データマイニングプロジェクトの標準的なプロセスモデル", ref: "93939393" },
+          { catId: 7, term: "説明可能AI (XAI)", def: "判断根拠を示す技術。LIME(局所)、SHAP(貢献度)、Grad-CAM(ヒートマップ)", ref: "949494949494949494" },
+          { catId: 7, term: "敵対的攻撃 (Adversarial Attack)", def: "ノイズを加えて誤認識させる攻撃。防御策も研究されている", ref: "959595959595959595" },
+          { catId: 7, term: "ディープフェイク", def: "AIで生成された偽の映像・音声。なりすましリスクがある", ref: "969696969696969696" },
+        ];
+
+        function GlossaryApp() {
+            const [selectedCatId, setSelectedCatId] = React.useState(null); 
+            const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+            const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
+            const [isFlipped, setIsFlipped] = React.useState(false);
+            const [cards, setCards] = React.useState(RAW_DATA);
+            const [isShuffled, setIsShuffled] = React.useState(false);
+            const [viewMode, setViewMode] = React.useState('flashcard');
+            const [searchQuery, setSearchQuery] = React.useState('');
+
+            React.useEffect(() => {
+                let filtered = RAW_DATA;
+                if (selectedCatId) {
+                filtered = RAW_DATA.filter(item => item.catId === selectedCatId);
+                }
+                
+                if (isShuffled) {
+                filtered = [...filtered].sort(() => Math.random() - 0.5);
+                }
+
+                setCards(filtered);
+                setCurrentCardIndex(0);
+                setIsFlipped(false);
+            }, [selectedCatId, isShuffled]);
+
+            const handleCategorySelect = (id) => {
+                setSelectedCatId(id);
+                setIsMenuOpen(false);
+                setViewMode('flashcard');
+            };
+
+            const nextCard = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentCardIndex((prev) => (prev + 1) % cards.length);
+                }, 150);
+            };
+
+            const prevCard = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentCardIndex((prev) => (prev - 1 + cards.length) % cards.length);
+                }, 150);
+            };
+
+            const toggleShuffle = () => {
+                setIsShuffled(!isShuffled);
+            };
+
+            const toggleViewMode = () => {
+                setViewMode(prev => prev === 'flashcard' ? 'list' : 'flashcard');
+            };
+
+            const filteredList = cards.filter(card => 
+                card.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                card.def.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            const currentCard = cards[currentCardIndex];
+            const currentCategory = CATEGORIES.find(c => c.id === currentCard?.catId);
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans flex flex-col md:flex-row overflow-hidden">
+                
+                {/* Mobile Header */}
+                <div className="md:hidden bg-white shadow-sm p-4 flex items-center justify-between z-20 relative">
+                    <div className="flex items-center gap-2 font-bold text-lg text-indigo-700">
+                    <Icon name="Brain" className="w-6 h-6" />
+                    <span>資格応援隊 用語集</span>
+                    </div>
+                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md hover:bg-gray-100">
+                    {isMenuOpen ? <Icon name="X" /> : <Icon name="Menu" />}
+                    </button>
+                </div>
+
+                {/* Sidebar Navigation */}
+                <aside 
+                    className={`
+                    fixed md:static inset-y-0 left-0 z-30 w-72 bg-white shadow-xl md:shadow-none transform transition-transform duration-300 ease-in-out border-r border-gray-200
+                    ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+                    md:translate-x-0
+                    `}
+                >
+                    <div className="h-full flex flex-col">
+                    <div className="p-6 hidden md:flex items-center gap-2 font-bold text-xl text-indigo-700 border-b border-gray-100">
+                        <Icon name="Brain" className="w-8 h-8" />
+                        <span>資格応援隊</span>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                         <div className="flex items-center gap-2 mb-4 px-2">
+                             <a href="index.html" className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
+                                 <Icon name="Home" className="w-3 h-3" />
+                                 トップに戻る
+                             </a>
+                        </div>
+                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 ml-2">シラバス・メニュー</div>
+                        
+                        <button 
+                        onClick={() => handleCategorySelect(null)}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center gap-3 ${!selectedCatId ? 'bg-indigo-50 text-indigo-700 font-medium' : 'hover:bg-gray-50 text-gray-600'}`}
+                        >
+                        <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                        すべての用語 ({RAW_DATA.length})
+                        </button>
+
+                        {CATEGORIES.map(cat => (
+                        <button 
+                            key={cat.id}
+                            onClick={() => handleCategorySelect(cat.id)}
+                            className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-start gap-3 ${selectedCatId === cat.id ? 'bg-indigo-50 text-indigo-700 font-medium ring-1 ring-indigo-200' : 'hover:bg-gray-50 text-gray-600'}`}
+                        >
+                            <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${cat.color}`}></div>
+                            <span className="text-sm leading-relaxed">{cat.title}</span>
+                        </button>
+                        ))}
+                    </div>
+
+                    <div className="p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
+                        Ver 1.0.3 Standalone
+                    </div>
+                    </div>
+                </aside>
+
+                {/* Main Content Area */}
+                <main className="flex-1 flex flex-col h-[calc(100vh-64px)] md:h-screen overflow-hidden relative">
+                    
+                    {/* Toolbar */}
+                    <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shadow-sm z-10">
+                    <div className="flex flex-col">
+                        <h2 className="font-bold text-gray-800 text-lg md:text-xl truncate max-w-[200px] md:max-w-md">
+                        {selectedCatId ? CATEGORIES.find(c => c.id === selectedCatId)?.title : "すべての用語"}
+                        </h2>
+                        <span className="text-xs text-gray-500">
+                        {cards.length} cards loaded
+                        </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                        <button 
+                        onClick={toggleShuffle}
+                        title="Shuffle Cards"
+                        className={`p-2 rounded-lg transition-colors ${isShuffled ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100'}`}
+                        >
+                        <Icon name="Shuffle" className="w-5 h-5" />
+                        </button>
+                        <button 
+                        onClick={toggleViewMode}
+                        title="Toggle List/Card View"
+                        className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100'}`}
+                        >
+                        {viewMode === 'list' ? <Icon name="Book" className="w-5 h-5" /> : <Icon name="List" className="w-5 h-5" />}
+                        </button>
+                    </div>
+                    </div>
+
+                    {/* View Content */}
+                    <div className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8 flex flex-col items-center justify-center">
+                    
+                    {viewMode === 'flashcard' && cards.length > 0 && (
+                        <div className="w-full max-w-2xl flex flex-col items-center gap-6">
+                        
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
+                            <div 
+                            className={`h-1.5 rounded-full transition-all duration-300 ${currentCategory?.color || 'bg-indigo-500'}`} 
+                            style={{ width: `${((currentCardIndex + 1) / cards.length) * 100}%` }}
+                            ></div>
+                        </div>
+
+                        {/* Card Container */}
+                        <div 
+                            className="flip-container relative w-full aspect-[4/3] md:aspect-[16/9] cursor-pointer group" 
+                            onClick={() => setIsFlipped(!isFlipped)}
+                        >
+                            <div 
+                            className="flip-inner shadow-xl rounded-2xl"
+                            style={{ transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                            >
+                            
+                            {/* Front */}
+                            <div className="flip-card-front bg-white rounded-2xl flex flex-col items-center justify-center p-8 border border-gray-100">
+                                <span className={`px-3 py-1 rounded-full text-xs font-medium text-white mb-6 ${CATEGORIES.find(c => c.id === currentCard.catId)?.color || 'bg-gray-500'}`}>
+                                Category {currentCard.catId}
+                                </span>
+                                <h3 className="text-3xl md:text-4xl font-bold text-center text-gray-800 leading-tight">
+                                {currentCard.term}
+                                </h3>
+                                <p className="mt-8 text-sm text-gray-400 font-medium">Click to flip</p>
+                            </div>
+
+                            {/* Back */}
+                            <div className="flip-card-back bg-indigo-50 rounded-2xl flex flex-col items-center justify-center p-8 border border-indigo-100 text-center">
+                                <h3 className="text-xl md:text-2xl font-bold text-indigo-900 mb-4 border-b border-indigo-200 pb-2">
+                                {currentCard.term}
+                                </h3>
+                                <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-prose">
+                                {currentCard.def}
+                                </p>
+                                {currentCard.ref && (
+                                <div className="mt-6 text-xs text-gray-400 bg-white px-2 py-1 rounded border border-gray-200">
+                                    Ref ID: {currentCard.ref}
+                                </div>
+                                )}
+                            </div>
+                            </div>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex items-center gap-6 mt-4">
+                            <button 
+                            onClick={(e) => { e.stopPropagation(); prevCard(); }}
+                            className="p-4 rounded-full bg-white shadow-md hover:shadow-lg text-gray-700 hover:text-indigo-600 transition-all active:scale-95 border border-gray-100"
+                            >
+                            <Icon name="ChevronLeft" className="w-8 h-8" />
+                            </button>
+                            
+                            <span className="font-mono text-gray-500 font-medium">
+                            {currentCardIndex + 1} / {cards.length}
+                            </span>
+
+                            <button 
+                            onClick={(e) => { e.stopPropagation(); nextCard(); }}
+                            className="p-4 rounded-full bg-white shadow-md hover:shadow-lg text-gray-700 hover:text-indigo-600 transition-all active:scale-95 border border-gray-100"
+                            >
+                            <Icon name="ChevronRight" className="w-8 h-8" />
+                            </button>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button 
+                            onClick={() => setIsFlipped(!isFlipped)}
+                            className="md:hidden px-6 py-2 bg-indigo-600 text-white rounded-full text-sm font-medium shadow-md active:bg-indigo-700"
+                            >
+                            {isFlipped ? 'Show Term' : 'Show Meaning'}
+                            </button>
+                        </div>
+
+                        </div>
+                    )}
+
+                    {viewMode === 'list' && (
+                        <div className="w-full max-w-4xl h-full flex flex-col">
+                            <div className="relative mb-4">
+                            <Icon name="Search" className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                            <input 
+                                type="text" 
+                                placeholder="用語を検索..." 
+                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            </div>
+                            
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1 overflow-y-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th className="p-4 font-semibold text-gray-600 border-b w-1/3">用語</th>
+                                    <th className="p-4 font-semibold text-gray-600 border-b">意味・解説</th>
+                                </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                {filteredList.length > 0 ? (
+                                    filteredList.map((card, idx) => (
+                                    <tr key={idx} className="hover:bg-indigo-50/30 transition-colors">
+                                        <td className="p-4 align-top font-bold text-gray-800">{card.term}</td>
+                                        <td className="p-4 align-top text-gray-600">{card.def}</td>
+                                    </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                    <td colSpan="2" className="p-8 text-center text-gray-400">見つかりませんでした</td>
+                                    </tr>
+                                )}
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {cards.length === 0 && (
+                        <div className="text-center text-gray-500">
+                        <p>No cards available.</p>
+                        </div>
+                    )}
+
+                    </div>
+                </main>
+                
+                {/* Overlay for mobile menu */}
+                {isMenuOpen && (
+                    <div 
+                    className="fixed inset-0 bg-black/50 z-20 md:hidden"
+                    onClick={() => setIsMenuOpen(false)}
+                    ></div>
+                )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GlossaryApp />);
+    </script>
+</body>
+</html>
